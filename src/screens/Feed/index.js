@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   separatorView: {
     height: 8,
     backgroundColor: '#00000005',
-    marginVertical: 32,
+    marginBottom: 24,
   },
   userImagStyle: {
     width: 40,
