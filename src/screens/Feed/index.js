@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -72,10 +72,10 @@ export const RenderFeedCard = ({
         )}
       </View>
       <View style={styles.tagListContainer}>
-        {tagList.map(i => {
+        {tagList.map((data, i) => {
           return (
-            <TouchableOpacity>
-              <Text style={styles.tagStyle}>#{i}</Text>
+            <TouchableOpacity key={i}>
+              <Text style={styles.tagStyle}>#{data}</Text>
             </TouchableOpacity>
           );
         })}
@@ -96,6 +96,7 @@ export const RenderFeedCard = ({
 
 const Feed = () => {
   const dispatch = useDispatch();
+  const [offset, setOffset] = useState(1);
   const navigation = useNavigation();
   const feedDataResp = useSelector(state => state.FeedReducer.feedDataResp);
   const refreshHome = useSelector(state => state.FeedReducer.refreshHome);
@@ -107,7 +108,7 @@ const Feed = () => {
   const [feedList, setFeedList] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchFeeds());
+    dispatch(fetchFeeds(offset));
   }, [dispatch]);
 
   useEffect(() => {
@@ -131,14 +132,15 @@ const Feed = () => {
 
   const _onRefresh = () => {
     dispatch({type: 'REFRESH_HOME', value: true});
-    dispatch(fetchFeeds());
+    dispatch(fetchFeeds(offset));
   };
 
   const loadMoreFeeds = () => {
     if (totalFeeds > feedList.length) {
       setLoadMore(true);
       setPaginate(true);
-      dispatch(fetchFeeds());
+      setOffset(prev => prev + 1);
+      dispatch(fetchFeeds(offset + 1));
     }
   };
 
@@ -155,6 +157,14 @@ const Feed = () => {
     dispatch({type: 'IS_GUEST', value: false});
     dispatch({type: 'FEED_LIST', value: []});
   };
+
+  const renderFeeds = useCallback(({item, index}) => {
+    return (
+      <RenderFeedCard item={item} index={index} onFeedClick={onFeedClick} />
+    );
+  }, []);
+
+  const keyExtractor = useCallback(item => item.slug, []);
 
   if (loading) {
     return (
@@ -173,14 +183,12 @@ const Feed = () => {
       </View>
       <FlatList
         data={feedList}
-        keyExtractor={item => item.slug}
+        keyExtractor={keyExtractor}
         refreshControl={
           <RefreshControl refreshing={refreshHome} onRefresh={_onRefresh} />
         }
         showsVerticalScrollIndicator={false}
-        renderItem={({item, index}) => (
-          <RenderFeedCard item={item} index={index} onFeedClick={onFeedClick} />
-        )}
+        renderItem={renderFeeds}
         ItemSeparatorComponent={<ItemSeparator />}
         onMomentumScrollEnd={loadMoreFeeds}
         onEndReachedThreshold={0.1}

@@ -1,8 +1,8 @@
 import {AppService} from '../../service';
 
-export const fetchFeeds = () => {
+export const fetchFeeds = (offset = 1) => {
   return async dispatch => {
-    const apiUrl = 'articles?limit=10&offset=0';
+    const apiUrl = `articles?limit=10&offset=${offset}`;
     try {
       const responseData = await AppService(apiUrl, 'GET');
       dispatch({type: 'FEED_LIST', value: responseData.articles || []});
