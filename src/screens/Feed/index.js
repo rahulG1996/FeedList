@@ -182,7 +182,7 @@ const Feed = () => {
           <RenderFeedCard item={item} index={index} onFeedClick={onFeedClick} />
         )}
         ItemSeparatorComponent={<ItemSeparator />}
-        onEndReached={loadMoreFeeds}
+        onMomentumScrollEnd={loadMoreFeeds}
         onEndReachedThreshold={0.1}
         ListFooterComponent={footerComponent}
       />
